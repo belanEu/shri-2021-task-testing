@@ -14,7 +14,7 @@ import { initStore } from "../../../src/client/store";
 import { CartApi, ExampleApi } from "../../../src/client/api";
 
 describe('проверка навигации', () => {
-    it('ссылки в шапке', () => {
+    test('переход по ссылкам в шапке', () => {
         const history = createMemoryHistory({
             initialEntries: ['/'],
             initialIndex: 0
