@@ -9,7 +9,8 @@
  import '@testing-library/jest-dom'
  
  import { initStore } from "../../../src/client/store";
- import { ExampleApiMock, CartApiMock } from "../../helper/Mocks";
+ import { CartApi } from '../../../src/client/api';
+ import { ExampleApiMock } from "../../helper/Mocks";
 import { Catalog } from '../../../src/client/pages/Catalog';
 import { Application } from '../../../src/client/Application';
 import userEvent from '@testing-library/user-event';
@@ -24,7 +25,7 @@ describe('проверка страницы Catalog', () => {
             initialEntries: ['/catalog'],
             initialIndex: 0
         });
-        let store = initStore(exampleApiMock, new CartApiMock);
+        let store = initStore(exampleApiMock, new CartApi);
 
         const catalog = (
             <Router history={history}>
@@ -81,14 +82,14 @@ describe('проверка страницы Catalog', () => {
             initialEntries: ['/catalog'],
             initialIndex: 0
         });
-        let store = initStore(new ExampleApiMock(AMOUNT_OF_PRODUCTS), new CartApiMock);
+        let store = initStore(new ExampleApiMock(AMOUNT_OF_PRODUCTS), new CartApi);
 
         beforeEach(async () => {
             history = createMemoryHistory({
                 initialEntries: ['/catalog'],
                 initialIndex: 0
             });
-            store = initStore(new ExampleApiMock(AMOUNT_OF_PRODUCTS), new CartApiMock);
+            store = initStore(new ExampleApiMock(AMOUNT_OF_PRODUCTS), new CartApi);
             render((
                 <Router history={history}>
                     <Provider store={store}>
