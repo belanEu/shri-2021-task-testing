@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "scripts": {
         "start": "nodemon ./src/server/index.ts",
-        "unit-test": "jest ./test/unit/",
+        "unit-test": "jest ./test/unit/catalog",
         "build": "webpack --mode=production --node-env=production",
         "watch": "webpack --watch"
     },
