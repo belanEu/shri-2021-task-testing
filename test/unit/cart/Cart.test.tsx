@@ -8,7 +8,7 @@
  import { render, waitFor, within, screen } from '@testing-library/react';
  import '@testing-library/jest-dom'
  
- import { initStore, addToCart } from "../../../src/client/store";
+ import { initStore, addToCart, checkout } from "../../../src/client/store";
  import { CartApi } from '../../../src/client/api';
  import { ExampleApiMock } from "../../helper/Mocks";
 import { Application } from '../../../src/client/Application';
@@ -75,10 +75,10 @@ describe('проверка страницы Shopping cart', () => {
                     const productData: CartItem = store.getState().cart[+id];
                     const tableItem = screen.getByTestId(id);
     
-                    return within(tableItem).queryAllByText(productData.name)
-                        && within(tableItem).queryAllByText(productData.count)
-                        && within(tableItem).queryAllByText(`$${productData.price}`)
-                        && within(tableItem).queryAllByText(`$${productData.count * productData.price}`);
+                    return within(tableItem).queryAllByText(productData.name).length > 0
+                        && within(tableItem).queryAllByText(productData.count).length > 0
+                        && within(tableItem).queryAllByText(`$${productData.price}`).length > 0
+                        && within(tableItem).queryAllByText(`$${productData.count * productData.price}`).length > 0;
                 })
             ).toBeTruthy();
     
@@ -101,6 +101,17 @@ describe('проверка страницы Shopping cart', () => {
         test('пустая корзина. есть ссылка на каталог', () => {    
             expect(screen.queryByText(/Cart is empty. Please select products in the/i)).toBeInTheDocument();
             expect(screen.queryByRole('link', {name: /catalog/i})).toBeInTheDocument();
+            
+            const product = getProductStub(0);
+            expect(screen.queryAllByText(product.name).length > 0).toBeFalsy();
+        });
+
+        test.only('проверка Checkout', () => {
+            const product = getProductStub(0);
+            store.dispatch(addToCart(product));
+            expect(screen.queryByText(/Please provide your name/i)).toBeInTheDocument();
+            expect(screen.queryByText(/Please provide a valid phone/i)).toBeInTheDocument();
+            expect(screen.queryByText(/Please provide a valid address/i)).toBeInTheDocument();
         });
     });
 });
