@@ -23,5 +23,3 @@ export class ExampleApiMock extends ExampleApi {
         return {data: {id: 3}} as AxiosResponse<CheckoutResponse>;
     }
 }
-
-export class CartApiMock extends CartApi {}
