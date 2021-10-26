@@ -5,12 +5,11 @@
  import { Provider } from "react-redux";
  import { Router } from 'react-router';
  import { createMemoryHistory } from 'history';
- import { render, waitFor, within, screen } from '@testing-library/react';
+ import { render, within, screen } from '@testing-library/react';
  import '@testing-library/jest-dom'
  
- import { initStore, addToCart, checkout } from "../../../src/client/store";
- import { CartApi } from '../../../src/client/api';
- import { ExampleApiMock } from "../../helper/Mocks";
+ import { initStore, addToCart } from "../../../src/client/store";
+ import { ExampleApiMock, CartApiMock } from "../../helper/Mocks";
 import { Application } from '../../../src/client/Application';
 import userEvent from '@testing-library/user-event';
 import { getProductStub } from '../../helper/Stubs';
@@ -23,7 +22,7 @@ describe('проверка страницы Shopping cart', () => {
         initialEntries: ['/cart'],
         initialIndex: 0
     });
-    let store = initStore(new ExampleApiMock(AMOUNT_OF_PRODUCTS), new CartApi);
+    let store = initStore(new ExampleApiMock(AMOUNT_OF_PRODUCTS), new CartApiMock);
 
     test('кол-во неповторяющихся товаров в шапке рядом со ссылкой на корзину', () => {
         render((
@@ -33,8 +32,6 @@ describe('проверка страницы Shopping cart', () => {
                 </Provider>
             </Router>
         ));
-
-        // await waitFor(() => store.subscribe);
 
         // трижды добавляется первый товар
         store.dispatch(addToCart(getProductStub(0)));
@@ -56,7 +53,7 @@ describe('проверка страницы Shopping cart', () => {
                 initialEntries: ['/cart'],
                 initialIndex: 0
             });
-            store = initStore(new ExampleApiMock(AMOUNT_OF_PRODUCTS), new CartApi);
+            store = initStore(new ExampleApiMock(AMOUNT_OF_PRODUCTS), new CartApiMock);
             
             render((
                 <Router history={history}>

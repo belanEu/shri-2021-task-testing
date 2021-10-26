@@ -1,7 +1,7 @@
 import { AxiosResponse } from "axios";
 import { ExampleApi, CartApi } from "../../src/client/api";
 import { ProductShortInfo, Product, CheckoutFormData, CartState, CheckoutResponse } from "../../src/common/types";
-import { getProductStub, getProductsShortInfoStub, OrderStub } from "./Stubs";
+import { getProductStub, getProductsShortInfoStub } from "./Stubs";
 
 export class ExampleApiMock extends ExampleApi {
     shortInfoProducts: ProductShortInfo[];
@@ -21,5 +21,22 @@ export class ExampleApiMock extends ExampleApi {
 
     async checkout(form: CheckoutFormData, cart: CartState) {
         return {data: {id: 3}} as AxiosResponse<CheckoutResponse>;
+    }
+}
+
+export class CartApiMock extends CartApi {
+    private cartState: CartState;
+
+    constructor() {
+        super();
+        this.cartState = {};
+    }
+
+    getState(): CartState {
+        return this.cartState;
+    }
+
+    setState(cart: CartState) {
+        this.cartState = cart;
     }
 }
