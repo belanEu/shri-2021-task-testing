@@ -24,14 +24,22 @@ describe('проверка страницы Shopping cart', () => {
     });
     let store = initStore(new ExampleApiMock(AMOUNT_OF_PRODUCTS), new CartApiMock);
 
+    const renderWrap = (
+            reactElement: React.ReactElement,
+            store: ReturnType<typeof initStore>,
+            history: ReturnType<typeof createMemoryHistory>
+        ) => {
+            render(
+                <Router history={history}>
+                    <Provider store={store}>
+                        {reactElement}
+                    </Provider>
+                </Router>
+            );
+        };
+
     test('кол-во неповторяющихся товаров в шапке рядом со ссылкой на корзину', () => {
-        render((
-            <Router history={history}>
-                <Provider store={store}>
-                    <Application />
-                </Provider>
-            </Router>
-        ));
+        renderWrap(<Application />, store, history);
 
         // трижды добавляется первый товар
         store.dispatch(addToCart(getProductStub(0)));
@@ -53,15 +61,22 @@ describe('проверка страницы Shopping cart', () => {
                 initialEntries: ['/cart'],
                 initialIndex: 0
             });
-            store = initStore(new ExampleApiMock(AMOUNT_OF_PRODUCTS), new CartApiMock);
+            const cart = new CartApiMock;
+            cart.setState({
+                0: {
+                    name: 'blabla1',
+                    price: 12,
+                    count: 3
+                },
+                1: {
+                    name: 'blabla2',
+                    price: 12,
+                    count: 2
+                }
+            });
+            store = initStore(new ExampleApiMock(AMOUNT_OF_PRODUCTS), cart);
             
-            render((
-                <Router history={history}>
-                    <Provider store={store}>
-                        <Cart />
-                    </Provider>
-                </Router>
-            ));
+            renderWrap(<Cart />, store, history);
         });
 
         test('отображена таблица с выбранными продуктами', () => {
@@ -83,19 +98,25 @@ describe('проверка страницы Shopping cart', () => {
                 .reduce((sum, { count, price }) => sum + count * price, 0);
             expect(screen.queryByText(`$${totalPrice}`)).toBeInTheDocument();
         });
-    
-        test('очистка корзины по нажатию на Clear shopping cart', () => {
+
+        const clickClearButton = () => {
             const clearButton = screen.getByRole('button', {name: /Clear shopping cart/i});
             expect(clearButton).toBeInTheDocument();
     
             const leftClick = {button: 0};
     
             userEvent.click(clearButton, leftClick);
+        };
+    
+        test('очистка корзины по нажатию на Clear shopping cart', () => {
+            clickClearButton();
     
             expect(Object.keys(store.getState().cart).length).toEqual(0);
         });
-    
-        test('пустая корзина. есть ссылка на каталог', () => {    
+
+        test('пустая корзина. есть ссылка на каталог', () => {
+            clickClearButton();
+            
             expect(screen.queryByText(/Cart is empty. Please select products in the/i)).toBeInTheDocument();
             expect(screen.queryByRole('link', {name: /catalog/i})).toBeInTheDocument();
             
@@ -103,7 +124,7 @@ describe('проверка страницы Shopping cart', () => {
             expect(screen.queryAllByText(product.name).length > 0).toBeFalsy();
         });
 
-        test.only('проверка Checkout', () => {
+        test('проверка Checkout', () => {
             const product = getProductStub(0);
             store.dispatch(addToCart(product));
             expect(screen.queryByText(/Please provide your name/i)).toBeInTheDocument();
