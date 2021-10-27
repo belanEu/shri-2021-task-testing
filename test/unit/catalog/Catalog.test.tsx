@@ -1,16 +1,16 @@
 /**
  * @jest-environment jsdom
  */
- import React from 'react'
- import { Provider } from "react-redux";
- import { Router } from 'react-router';
- import { createMemoryHistory } from 'history';
- import { render, waitFor, within, screen } from '@testing-library/react';
- import '@testing-library/jest-dom'
+import React from 'react'
+import { Provider } from "react-redux";
+import { Router } from 'react-router';
+import { createMemoryHistory } from 'history';
+import { render, waitFor, within, screen } from '@testing-library/react';
+import '@testing-library/jest-dom'
  
- import { initStore } from "../../../src/client/store";
- import { CartApi } from '../../../src/client/api';
- import { ExampleApiMock } from "../../helper/Mocks";
+import { initStore, addToCart } from "../../../src/client/store";
+import { CartApi } from '../../../src/client/api';
+import { ExampleApiMock } from "../../helper/Mocks";
 import { Catalog } from '../../../src/client/pages/Catalog';
 import { Application } from '../../../src/client/Application';
 import userEvent from '@testing-library/user-event';
@@ -139,18 +139,15 @@ describe('проверка страницы Catalog', () => {
 
                 const leftClick = {button: 0};
 
-                let product = getProductStub(store.getState().products[0].id);
+                let product = getProductStub(0);
+                store.dispatch(addToCart(product));
                 let productElement = screen.queryAllByTestId(product.id.toString())[1];
+                expect(within(productElement).getByText(/Item in cart/i)).toBeInTheDocument();
 
-                userEvent.click(within(productElement).getByRole('link', {name: /Details/i}), leftClick);
-                await waitFor(() => userEvent.click(screen.getByRole('button', {name: /Add to Cart/i}), leftClick));
+                await waitFor(() => userEvent.click(within(productElement).getByRole('link', {name: /Details/i}), leftClick));
 
                 expect(screen.getByText(/Item in cart/i)).toBeInTheDocument();
-
-                history.goBack();
-
-                productElement = screen.queryAllByTestId(product.id.toString())[1];
-                expect(within(productElement).getByText(/Item in cart/i)).toBeInTheDocument();
+                
             });
 
 
