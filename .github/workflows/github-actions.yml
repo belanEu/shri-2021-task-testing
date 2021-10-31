@@ -1,5 +1,8 @@
 name: GitHub Actions
 on: [push]
+defaults:
+  run:
+    working-directory: ./
 jobs:
   Form-Release-Data:
     runs-on: ubuntu-latest
