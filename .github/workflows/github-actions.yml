@@ -1,15 +1,10 @@
 name: GitHub Actions
 on: [push]
-defaults:
-  run:
-    working-directory: ./
 jobs:
   Form-Release-Data:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v1
       - name: Form release
         run: |
           bash form_release.sh
