@@ -7,6 +7,7 @@ jobs:
   Form-Release-Data:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v1
       - name: Form release
         run: |
           bash form_release.sh
