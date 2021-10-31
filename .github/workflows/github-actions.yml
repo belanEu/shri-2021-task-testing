@@ -6,4 +6,4 @@ jobs:
     steps:
       - name: Form release
         run: |
-          bash ../../form_release.sh
+          pwd
