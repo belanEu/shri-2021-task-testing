@@ -1,10 +1,16 @@
-name: GitHub Actions
-on: [push]
+name: Release script
+on:
+  push:
+    tags:
+      - v*.*-release
 jobs:
-  Form-Release-Data:
+  Release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: Form release
-        run: |
-          bash form_release.sh
+
+      - name: fetch
+        run: git fetch --all --prune
+
+      - name: exec release
+        run: npm run release
