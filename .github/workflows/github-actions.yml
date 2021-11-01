@@ -1,8 +1,5 @@
 name: Release script
-on:
-  push:
-    tags:
-      - v*.*
+on: [push]
 jobs:
   Release:
     runs-on: ubuntu-latest
