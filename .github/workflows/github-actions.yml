@@ -2,8 +2,7 @@ name: Release script
 on:
   workflow_dispatch:
   push:
-    tags:
-      - v*.*-release
+    tags: 'v*.*-release'
 jobs:
   Release:
     runs-on: ubuntu-latest
