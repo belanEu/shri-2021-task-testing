@@ -4,8 +4,8 @@ import {bash, bashAsync, htmlWrapper} from './helper.mjs'
 
 export class Release {
     constructor() {
-        this.currTagVersion = bash('git describe --abbrev=0 --match *-release');
-        this.prevTagVersion = bash('git describe --abbrev=0 --tags "$(git rev-list --tags=*-release --skip=1 --max-count=1)" --match *-release');
+        this.currTagVersion = bash('git describe --abbrev=0');
+        this.prevTagVersion = bash('git describe --abbrev=0 --tags "$(git rev-list --tags --skip=1 --max-count=1)"');
         this._initReleaseChanges();
     }
 
@@ -19,30 +19,35 @@ export class Release {
 
     async run() {
         const tasks = await this._getTasks(this.currTagVersion);
+        let taskId = tasks.length > 0 ? tasks[0].id : null;
 
         let success = false;
-        if (tasks.length > 0) {
-            success = await this._updateTaskReleaseData(tasks[0].id);
+
+        if (taskId !== null) {
+            success = await this._updateTaskReleaseData(taskId);
         } else {
-            success = await this._createTaskReleaseData();
+            taskId = (await this._createTaskReleaseData()).id;
+            if (taskId) {
+                success = true;
+            }
         }
 
         if (success) {
             let testsResult = await this._execTests();
             await this._fixTestsResultIntoTask(
-                tasks[0].id,
+                taskId,
                 '----<b>TEST APP</b>----<br><br>'
                 + testsResult
             );
             if (this._checkTestsResult(testsResult)) {
                 let buildDockerImageResult = await this._buildDockerImage();
                 await this._fixDockerBuildResult(
-                    tasks[0].id,
+                    taskId,
                     '----<b>BUILD DOCKER IMAGE</b>----<br><br>'
                     + buildDockerImageResult
                 );
             } else {
-                await this._fixDockerBuildResult(tasks[0].id, 'BUILD DOCKER IMAGE skipped');
+                await this._fixDockerBuildResult(taskId, 'BUILD DOCKER IMAGE skipped');
             }
         }
     }
@@ -72,8 +77,8 @@ export class Release {
     async _createTaskReleaseData() {
         return await Tracker.createTask({
             queue: QUEUE_NAME,
-            summary: `RELEASE! tag ${this.currTagVersion}`,
-            describtion: htmlWrapper(`<div>${this.releaseChanges}</div>`),
+            summary: `RELEASE! tag ${this.currTagVersion} (Evgeny Belan)`,
+            description: htmlWrapper(`<div>${this.releaseChanges}</div>`),
             unique: this.currTagVersion
         });
     }
