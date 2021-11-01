@@ -2,12 +2,14 @@ name: Release script
 on:
   push:
     tags:
-      - v*.*-release
+      - 'v*.*-release'
 jobs:
   Release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: fetch
         run: git fetch --all --prune
