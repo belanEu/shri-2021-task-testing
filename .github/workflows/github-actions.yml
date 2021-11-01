@@ -1,5 +1,8 @@
 name: Release script
-on: [push]
+on:
+  push:
+    branches:
+      - test-action
 jobs:
   Release:
     runs-on: ubuntu-latest
