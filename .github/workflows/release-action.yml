@@ -2,7 +2,7 @@ name: Release action
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*.*'
 jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
@@ -12,5 +12,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: 'Setup node'
+        uses: actions/setup-node@v1
+        with:
+          node-version: '16.10.0'
+
+      - name: 'Install'
+        run: npm i
+        
       - name: 'Run'
-        run: ls
+        run: npm run release
