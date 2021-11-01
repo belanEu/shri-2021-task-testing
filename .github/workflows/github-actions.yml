@@ -13,4 +13,4 @@ jobs:
         run: git fetch --all --prune
 
       - name: exec release
-        run: npm run release
+        run: ls
