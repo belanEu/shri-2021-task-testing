@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - test-action
+    tags:
+      - v*
 jobs:
   Release:
     runs-on: ubuntu-latest
