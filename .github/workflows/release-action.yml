@@ -1,14 +1,16 @@
-name: Release script
+name: Release action
 on:
   push:
     tags:
       - 'v*'
 jobs:
-  Release:
+  Explore-GitHub-Actions:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions-ecosystem/action-push-tag@v1
+        name: 'Checkout source'
+        with:
+          fetch-depth: 0
 
-      - name: exec release
+      - name: 'Run'
         run: ls
