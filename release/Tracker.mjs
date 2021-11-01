@@ -58,6 +58,7 @@ export class Tracker {
             }
         );
 
-        return (await res).ok;
+        let data = await res;
+        return await data.json();
     }
 }
