@@ -1,5 +1,5 @@
 import {Tracker} from './Tracker.mjs';
-import {QUEUE_NAME} from './constant.mjs';
+import {QUEUE_NAME, APP} from './constant.mjs';
 import {bash, bashAsync, htmlWrapper} from './helper.mjs'
 
 export class Release {
@@ -18,30 +18,31 @@ export class Release {
     }
 
     async run() {
-        console.log(this.currTagVersion);
-        console.log(this.prevTagVersion);
-        console.log(this.releaseChanges);
-
         const tasks = await this._getTasks(this.currTagVersion);
 
         let success = false;
         if (tasks.length > 0) {
-            // todo: add comment with changes
             success = await this._updateTaskReleaseData(tasks[0].id);
         } else {
-            // todo: create new task
             success = await this._createTaskReleaseData();
         }
 
         if (success) {
             let testsResult = await this._execTests();
-            await this._fixTestsResultIntoTask(tasks[0].id, testsResult);
+            await this._fixTestsResultIntoTask(
+                tasks[0].id,
+                '----<b>TEST APP</b>----<br><br>'
+                + testsResult
+            );
             if (this._checkTestsResult(testsResult)) {
-                // todo: сборка docker-образа
-                // todo: комментарий об успешной сборке
-                console.log('DOCKER BUILD');
+                let buildDockerImageResult = await this._buildDockerImage();
+                await this._fixDockerBuildResult(
+                    tasks[0].id,
+                    '----<b>BUILD DOCKER IMAGE</b>----<br><br>'
+                    + buildDockerImageResult
+                );
             } else {
-                await this._fixDockerBuildResult(tasks[0].id, 'Сборка Docker-образа отложена');
+                await this._fixDockerBuildResult(tasks[0].id, 'BUILD DOCKER IMAGE skipped');
             }
         }
     }
@@ -96,7 +97,7 @@ export class Release {
     async _fixDockerBuildResult(taskId, text) {
         return await Tracker.addCommentToTask(
             taskId,
-            { text: text }
+            { text: htmlWrapper(`<div>${text}</div>`) }
         );
     }
 
@@ -106,5 +107,12 @@ export class Release {
 
     _checkTestsResult(result) {
         return !(result.includes('fail') && result.includes('FAIL'));
+    }
+
+    async _buildDockerImage() {
+        return (await bashAsync(`docker build . -t ${APP}:${this.currTagVersion}`)).stdout
+                .split('\n')
+                .slice(-3)
+                .join('<br/>');
     }
 }
